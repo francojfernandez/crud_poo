@@ -1,43 +1,86 @@
 <?php
 
-	include_once('Conexion.php');
-	class Estudiantes{
+    //CLASE DE CONEXIÓN INCLUIDA
+    include_once('Conexion.php');
 
-		#Atributos
-		private $id;
-		private $cedula;
-		private $nombre;
-		private $apellido;
-		private $telefono;
-		private $edad;
-		private $promedio;
-		private $fecha;
+    class Estudiante{
 
-		private $con;
-		
-		#Metodos
+        //Atributos
+        private $id;
+        private $cedula;
+        private $nombre;
+        private $apellido;
+        private $telefono;
+        private $edad;
+        private $promedio;
+        private $fecha;
 
-		public function __construct()
-		{
-			$this->con = new Conexion();
-		}
+        private $con;
 
-		public function set($atributo, $contenido){
-			$this->$atributo = $contenido;
-		}
+        //Metodos
+        public function __construct(){
+            $this->con = new Conexion();
+        }
 
-		public function get($atributo){
-			return $this->$atributo;
-		}
+        public function set($atributo, $contenido){
+            $this->$atributo = $contenido;
+        }
 
-		public function crear(){
-			$sql = "SELECT * from estudiantes where cedula='{$this->cedula}'";
-			$resultado = $this->con->consultaRetorno($sql2);
-			
-			$sql = "INSERT INTO estudiantes (cedula, nombre, apellido, telefono, edad, promedio, fecha) VALUE (
-				'{$this->cedula}','{$this->nombre},'{$this->apellido}','{$this->telefono}','{$this->edad}','{$this->promedio}',NOW())";
-			$this->con->consultaSimple($sql);
-		}
-	}
+        public function get($atributo){
+            return $this->$atributo;
+        }
+
+        public function listar(){
+            $sql = "SELECT * FROM estudiantes";
+            $resultado = $this->con->consultaRetorno($sql);
+            return $resultado;
+        }
+
+        public function crear(){
+
+            $sql2 = "SELECT * FROM estudiantes WHERE cedula = '{$this->cedula}'";
+            $resultado = $this->con->consultaRetorno($sql2);
+            $num = mysql_num_rows($resultado);
+
+            if($num != 0){
+                return false;
+            }else{
+                $sql = "INSERT INTO estudiantes (cedula, nombre, apellido, telefono, edad, promedio, fecha) VALUES (
+                    '{$this->cedula}', '{$this->nombre}', '{$this->apellido}', '{$this->telefono}', '{$this->edad}',
+                    '{$this->promedio}', NOW())";
+                $this->con->consultaSimple($sql);
+                return true;
+            }
+        }
+
+        public function eliminar(){
+            $sql = "DELETE FROM estudiantes WHERE id = '{$this->id}'";
+            $this->con->consultaSimple($sql);
+        }
+
+        public function ver(){
+            $sql = "SELECT * FROM estudiantes WHERE id = '{$this->id}' LIMIT 1";
+            $resultado = $this->con->consultaRetorno($sql);
+            $row = mysql_fetch_assoc($resultado);
+
+            //Set
+            $this->id = $row['id'];
+            $this->cedula = $row['cedula'];
+            $this->nombre = $row['nombre'];
+            $this->apellido = $row['apellido'];
+            $this->telefono = $row['telefono'];
+            $this->edad = $row['edad'];
+            $this->promedio = $row['promedio'];
+            $this->fecha = $row['fecha'];
+
+            return $row;
+        }
+
+        public function editar(){
+            $sql = "UPDATE estudiantes SET nombre = '{$this->nombre}', apellido = '{$this->apellido}',
+                    telefono = '{$this->telefono}', edad = '{$this->edad}' WHERE id = '{$this->id}'";
+            $this->con->consultaSimple($sql);
+        }
+    }
 
 ?>
